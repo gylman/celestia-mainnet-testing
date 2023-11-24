@@ -1,0 +1,39 @@
+{
+  "name": "celestia-mainnet-testing",
+  "version": "1.0.0",
+  "description": "testing celestia mainnet with functions similar to the ones used in madara order validation development by radius",
+  "main": "sequencer.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon sequencer.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gylman/celestia-mainnet-testing.git"
+  },
+  "keywords": [
+    "TIA",
+    "Mainnet",
+    "Celestia",
+    "Radius",
+    "Madara",
+    "Arabica",
+    "Mocha",
+    "Light",
+    "Full",
+    "Bridge",
+    "Node"
+  ],
+  "author": "gylman",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gylman/celestia-mainnet-testing/issues"
+  },
+  "homepage": "https://github.com/gylman/celestia-mainnet-testing#readme",
+  "dependencies": {
+    "axios": "^1.6.2",
+    "express": "^4.18.2",
+    "nodemon": "^3.0.1"
+  }
+}
