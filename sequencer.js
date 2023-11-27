@@ -1,30 +1,17 @@
 import express from 'express';
 import axios from 'axios';
 import cors from 'cors';
+import dotenv from 'dotenv';
+import { txs, txHashes } from './data.js';
+
 const app = express();
+dotenv.config();
 app.use(cors());
 app.use(express.json());
 
-const tx = {
-  nonce: '0x9',
-  gasPrice: '0x4a817c800',
-  gasLimit: '0x5208',
-  to: '0x88b44BC83add758A3642130619D61682282850Df',
-  value: '0x2386f26fc10000',
-  data: '0x',
-  v: '0x1b',
-  r: '0xf5b1b6190f8e620b6c5b3149b6329d577f2b3e6080a5da0b3e2f3ecd6b44f9ac',
-  s: '0x1c507769f3b9e62e255c2af5d3ad8fa4db8e4e9bfe3c940dbad12d3b0a27d1ee',
-};
-
-const txs = Array(2000)
-  .fill(0)
-  .map(() => tx);
-
-const namespace = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAtwyT7znK7sA=';
-const url = 'http://localhost:26657';
-const authToken =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJwdWJsaWMiLCJyZWFkIiwid3JpdGUiLCJhZG1pbiJdfQ.-1CtqTvYBqLC0N1cuT8te0fKQMQx97lPUWSAAKTknWo';
+const namespace = process.env.NAMESPACE;
+const url = process.env.URL;
+const authToken = process.env.AUTH_TOKEN;
 const config = {
   headers: {
     Authorization: `Bearer ${authToken}`,
@@ -33,7 +20,7 @@ const config = {
 };
 
 // Encode string to base64 format
-function encodeToBase64(str) {
+function encodeBase64(str) {
   return Buffer.from(str).toString('base64');
 }
 
@@ -42,9 +29,9 @@ function decodeBase64(base64String) {
   return Buffer.from(base64String, 'base64').toString('utf-8');
 }
 
-// Submit data in base64 encoding to Celestia mainnet
-async function submit(data) {
-  const base64data = encodeToBase64(JSON.stringify(data));
+// Submit data in base64 encoding to Celestia mainnet, returns blockHeight
+async function write(data) {
+  const base64data = encodeBase64(JSON.stringify(data));
   const requestBody = {
     id: 1,
     jsonrpc: '2.0',
@@ -66,15 +53,22 @@ async function submit(data) {
   };
 
   try {
+    const balance0 = await getBalance();
+    const startTime = Date.now();
     const response = await axios.post(url, requestBody, config);
+    const endTime = Date.now();
+    const balance1 = await getBalance();
+    const spent = balance0 - balance1;
+    const duration = endTime - startTime;
     console.log('Response:', response.data);
+    console.log(`Request cost ${spent} and completed in ${duration} ms`);
   } catch (error) {
     console.error('Error:', error);
   }
 }
 
 // Get all data from the chain using the namespace and block height provided by the response of the submit function
-async function getAll(blockHeight) {
+async function read(blockHeight) {
   const requestBody = {
     id: 1,
     jsonrpc: '2.0',
@@ -120,18 +114,19 @@ async function getAccountAddress() {
   }
 }
 
-function checkWriteCost() {
-  const balance0 = getBalance();
-  submit(tx);
-  const balance1 = getBalance();
-  const spent = balance0 - balance1;
-  return spent;
+// 1. We will store list of 1 transaction and check the spent amount and time
+async function _1tx(tx) {
+  await write(tx);
 }
-
-function stressTest() {
-  // Send multiple requests one after another and check the results
+// 2. We will store list of 1 hash and check the spent amount and time
+async function _1hash(hash) {
+  await write(hash);
 }
-
-function volumeTest() {
-  // Send request with different sizes of data and compare the results
+// 3. We will store list of 2000 transaction and check the spent amount and time
+async function _2000txs(txs) {
+  await write(txs);
+}
+// 4. We will store list of 2000 hashes and check the spent amount and time
+async function _2000hashes(hashes) {
+  await write(hashes);
 }
