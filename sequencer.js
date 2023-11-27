@@ -1,8 +1,19 @@
 import express from 'express';
 import axios from 'axios';
-const app = use(express());
+import cors from 'cors';
+const app = express();
 app.use(cors());
 app.use(express.json());
+
+const url = 'http://localhost:26657';
+const authToken =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJwdWJsaWMiLCJyZWFkIiwid3JpdGUiLCJhZG1pbiJdfQ.-1CtqTvYBqLC0N1cuT8te0fKQMQx97lPUWSAAKTknWo';
+const config = {
+  headers: {
+    Authorization: `Bearer ${authToken}`,
+    'Content-Type': 'application/json',
+  },
+};
 
 // Encode string to base64 format
 function encodeToBase64(str) {
@@ -32,7 +43,7 @@ async function submit() {
   };
 
   try {
-    const response = await axios.post('RPC_ENDPOINT_URL', requestBody);
+    const response = await axios.post(url, requestBody, config);
     console.log('Response:', response.data);
   } catch (error) {
     console.error('Error:', error);
@@ -48,7 +59,38 @@ async function getAll() {
     params: [42, ['AAAAAAAAAAAAAAAAAAAAAAAAAAECAwQFBgcICRA=']],
   };
   try {
-    const response = await axios.post('RPC_ENDPOINT_URL', requestBody);
+    const response = await axios.post(url, requestBody, config);
+    console.log('Response:', response.data);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+// Check balance
+async function balance() {
+  const requestBody = {
+    id: 1,
+    jsonrpc: '2.0',
+    method: 'state.Balance',
+    params: [],
+  };
+  try {
+    const response = await axios.post(url, requestBody, config);
+    console.log('Response:', response.data);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+async function accountAddress() {
+  const requestBody = {
+    id: 1,
+    jsonrpc: '2.0',
+    method: 'state.AccountAddress',
+    params: [],
+  };
+  try {
+    const response = await axios.post(url, requestBody, config);
     console.log('Response:', response.data);
   } catch (error) {
     console.error('Error:', error);
@@ -59,11 +101,11 @@ function stressTest() {
   // Send multiple requests one after another and check the results
 }
 
-function volumneTest() {
+function volumeTest() {
   // Send request with different sizes of data and compare the results
 }
-
-Submit();
+balance();
+// accountAddress();
 
 /* 
     const PORT = 1234;
