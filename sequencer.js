@@ -42,12 +42,11 @@ async function write(data) {
           namespace: namespace,
           data: base64data,
           share_version: 0,
-          commitment: 'AD5EzbG0/EMvpw0p8NIjMVnoCP4Bv6K+V6gjmwdXUKU=',
         },
       ],
       {
-        Fee: 42,
-        GasLimit: 42,
+        Fee: 1000000,
+        GasLimit: 1000000,
       },
     ],
   };
@@ -57,11 +56,13 @@ async function write(data) {
     const startTime = Date.now();
     const response = await axios.post(url, requestBody, config);
     const endTime = Date.now();
-    const balance1 = await getBalance();
-    const spent = balance0 - balance1;
+    // const balance1 = await getBalance();
+    // const spent = balance0 - balance1;
     const duration = endTime - startTime;
+    console.log('Balance before:', balance0);
     console.log('Response:', response.data);
-    console.log(`Request cost ${spent} and completed in ${duration} ms`);
+    // console.log(`Request cost ${spent} utia and completed in ${duration} ms`);
+    console.log(`Request completed in ${duration} ms`);
   } catch (error) {
     console.error('Error:', error);
   }
@@ -93,7 +94,8 @@ async function getBalance() {
   };
   try {
     const response = await axios.post(url, requestBody, config);
-    console.log('Response:', response.data);
+    // console.log('This is the balance:', response.data.result.amount);
+    return response.data.result.amount;
   } catch (error) {
     console.error('Error:', error);
   }
@@ -114,19 +116,23 @@ async function getAccountAddress() {
   }
 }
 
-// 1. We will store list of 1 transaction and check the spent amount and time
+// Store list of 1 transaction and check the spent amount and time
 async function _1tx(tx) {
   await write(tx);
 }
-// 2. We will store list of 1 hash and check the spent amount and time
+// Store list of 1 hash and check the spent amount and time
 async function _1hash(hash) {
   await write(hash);
 }
-// 3. We will store list of 2000 transaction and check the spent amount and time
+// Store list of 2000 transaction and check the spent amount and time
 async function _2000txs(txs) {
   await write(txs);
 }
-// 4. We will store list of 2000 hashes and check the spent amount and time
+// Store list of 2000 hashes and check the spent amount and time
 async function _2000hashes(hashes) {
   await write(hashes);
 }
+
+// _1tx(txs[0]);
+await write(txHashes);
+// await write(txHashes.slice(0, 10));
